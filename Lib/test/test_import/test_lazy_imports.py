@@ -409,6 +409,21 @@ class DunderLazyImportTests(unittest.TestCase):
         self.assertNotIn("test.test_import.data.lazy_imports.basic2", sys.modules)
         self.assertEqual(dunder_lazy_import_builtins.basic.basic2, 42)
 
+    def test_dunder_lazy_import_argument_validation(self):
+        """__lazy_import__ should strictly validate argument types to avoid SystemError."""
+        invalid_type_scenarios = [
+            (123, {}, {}, [], 0, "argument 1 must be str"),
+            ('os', 1, {}, [], 0, "argument 2 must be dict"),
+            ('os', {}, "not_a_dict", [], 0, "argument 3 must be dict"),
+            ('os', {}, {}, 42, 0, "argument 4 must be a list or tuple"),
+            ('os', {}, {}, "string_instead_of_list", 0, "argument 4 must be a list or tuple"),
+        ]
+
+        for name, glbs, lcls, flist, lvl, msg in invalid_type_scenarios:
+            with self.subTest(case=msg):
+                with self.assertRaisesRegex(TypeError, msg):
+                    __lazy_import__(name, glbs, lcls, flist, lvl)
+
 
 class SysLazyImportsAPITests(unittest.TestCase):
     """Tests for sys lazy imports API functions."""

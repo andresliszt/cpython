@@ -311,6 +311,37 @@ builtin___lazy_import___impl(PyObject *module, PyObject *name,
 {
     PyObject *builtins;
     PyThreadState *tstate = PyThreadState_GET();
+
+    // Validate input arguments
+    if (!PyUnicode_Check(name)) {
+        PyErr_Format(PyExc_TypeError,
+                     "__lazy_import__() argument 1 must be str, not %.200s",
+                     Py_TYPE(name)->tp_name);
+        return NULL;
+    }
+
+    if (globals != NULL && !PyDict_Check(globals)) {
+        PyErr_Format(PyExc_TypeError,
+                     "__lazy_import__() argument 2 must be dict, not %.200s",
+                     Py_TYPE(globals)->tp_name);
+        return NULL;
+    }
+
+    if (locals != NULL && !PyDict_Check(locals)) {
+        PyErr_Format(PyExc_TypeError,
+                     "__lazy_import__() argument 3 must be dict, not %.200s",
+                     Py_TYPE(locals)->tp_name);
+        return NULL;
+    }
+
+    if (fromlist != NULL && fromlist != Py_None &&
+        !PyList_Check(fromlist) && !PyTuple_Check(fromlist)) {
+        PyErr_Format(PyExc_TypeError,
+                     "__lazy_import__() argument 4 must be a list or tuple, not %.200s",
+                     Py_TYPE(fromlist)->tp_name);
+        return NULL;
+    }
+
     if (globals == NULL) {
         globals = PyEval_GetGlobals();
     }

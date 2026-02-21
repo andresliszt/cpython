@@ -1,0 +1,3 @@
+Fixed a :exc:`SystemError` in :func:`__lazy_import__` caused by passing
+invalid argument types. Added proper type validation for *name*, *globals*,
+*locals*, and *fromlist* arguments.
